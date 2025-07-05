@@ -168,7 +168,7 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
-                <div class="mt-6 flex justify-center">
+                <div className="mt-6 flex justify-center">
                   <Button disabled className="cursor-not-allowed bg-gray-700/50 text-gray-400/80 text-xs py-2 px-4 rounded-lg">
                     <Github className="w-4 h-4 mr-2" />
                     GitHub (Próximamente)
@@ -196,7 +196,7 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
-                <div class="mt-6 flex justify-center">
+                <div className="mt-6 flex justify-center">
                   <Button disabled className="cursor-not-allowed bg-gray-700/50 text-gray-400/80 text-xs py-2 px-4 rounded-lg">
                     <Github className="w-4 h-4 mr-2" />
                     GitHub (Próximamente)
@@ -224,7 +224,7 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
-                <div class="mt-6 flex justify-center">
+                <div className="mt-6 flex justify-center">
                   <a
                     href="https://youtu.be/lDFzFftjdNo"
                     target="_blank"
