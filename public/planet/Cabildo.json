@@ -1,0 +1,639 @@
+{
+  "name": "Cabildo",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1060,
+        320
+      ],
+      "id": "7879a741-a97c-4efd-8af8-e75e609a8ecb",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        -940,
+        740
+      ],
+      "id": "a11b331f-441b-431b-acdf-46642d5b34dc",
+      "name": "Ollama Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "AKDJvrWhvD8MEHJz",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 🟡 PROCESAR EMBEDDINGS",
+        "height": 460,
+        "width": 500
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -440,
+        500
+      ],
+      "typeVersion": 1,
+      "id": "cbb06afb-c58e-434f-9b93-6568b8f0c15b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 🔴  OBTENER NOTICIAS",
+        "height": 240,
+        "width": 900,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "ce8be222-36aa-4b4f-acad-ac6a22dd1adb",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## 🟢 VECTORIZAR NOTICIAS CON OLLAMA LOCAL",
+        "height": 460,
+        "width": 480,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        500
+      ],
+      "typeVersion": 1,
+      "id": "6d1bea00-936e-451f-84ed-f19945b262a4",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## 🟣 GENERAR INFORME EJECUTIVO Y NOTIFICAR VIA GMAIL\n",
+        "height": 280,
+        "width": 440,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        680
+      ],
+      "typeVersion": 1,
+      "id": "a9c0dde0-f3d5-4dbf-a8a2-cdb1cdc29e26",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://mmiapi-oauth.mmi-e.com/public/api/v1/auth/login/scripts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "zona",
+              "value": "1"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "admin_scripts"
+            },
+            {
+              "name": "password",
+              "value": "qaz123"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        320
+      ],
+      "id": "00815d58-60a4-46e2-be79-19fd1ccd4469",
+      "name": "Obtener Token de Autenticación",
+      "retryOnFail": true,
+      "notes": "Realiza la autenticación inicial con la API para obtener el token de acceso usando credenciales fijas."
+    },
+    {
+      "parameters": {
+        "jsCode": "// --- CONFIGURACIÓN PERSONALIZABLE ---\nconst config = {\n  perfilId: 737,\n  zona: 1,\n  fechaInicial: '2025-06-25',\n  fechaFinal: '2025-06-26',\n  mediaTypes: [ 'I','R','P','T' ], // T: TV, R: Radio, P: Prensa, I: Digital\n};\n\n// --- CONSTRUCCIÓN DE LA URL ---\nconst baseUrl = 'http://mmiapi-oauth.mmi-e.com/public/api/v1/reports/roi/profile';\n\nconst queryParams = [\n  `startDate=${config.fechaInicial}`,\n  `endDate=${config.fechaFinal}`,\n  ...config.mediaTypes.map(mt => `mediaType[]=${mt}`)\n].join('&');\n\nconst finalUrl = `${baseUrl}/${config.perfilId}?${queryParams}`;\n\n// Devolver datos útiles para siguientes nodos\nreturn [\n  {\n    json: {\n      url: finalUrl,\n      fechaInicial: config.fechaInicial,\n      fechaFinal: config.fechaFinal,\n      zona: config.zona\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -620,
+        320
+      ],
+      "id": "fadb6410-da68-4bf9-80cf-f0e7c8d16e4d",
+      "name": "Configurar Parámetros y Generar URL de Consulta",
+      "notes": "Define los parámetros de búsqueda (fechas, perfil, medios) y construye la URL completa para la API."
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Configurar Parámetros y Generar URL de Consulta').item.json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "zona",
+              "value": "={{ $json.zona }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('Obtener Token de Autenticación').item.json.content.access_token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -420,
+        320
+      ],
+      "id": "f278707d-d086-494c-ac56-c50028e89b4f",
+      "name": "Consultar API con Token",
+      "notes": "Realiza la petición HTTP a la URL construida, incluyendo el token de autenticación en los headers."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extrae el array de noticias desde la propiedad `data` del JSON\nconst noticias = items[0].json.data;\n\n// Validación mínima\nif (!Array.isArray(noticias)) {\n  throw new Error(\"No se encontró un array en items[0].json.data\");\n}\n\n// Devuelve cada noticia como un item independiente\nreturn noticias.map(noticia => ({\n  json: noticia\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -180,
+        320
+      ],
+      "id": "bdfeb12f-c827-4ece-8e2f-d864ca9d2bbf",
+      "name": "Extraer Listado de Noticias",
+      "notes": "Toma la respuesta cruda de la API y extrae el array de noticias del campo data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\n\n\nfor (const item of items) {\n\n  // Accede a cada propiedad que necesitas\n\n  const titular = item.json.titular;\n\n  const fecha = item.json.date;\n\n  const apoyo = item.json.support;\n\n  const superSoporte = item.json.superSupport;\n\n\n\n  // Crea un nuevo objeto con solo las propiedades deseadas\n\n  results.push({\n\n    json: {\n\n      titular: titular,\n\n      fecha: fecha,\n\n      apoyo: apoyo,\n\n      superSoporte: superSoporte\n\n    },\n\n  });\n\n}\n\n\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        320
+      ],
+      "id": "3228800a-bdfc-4b33-a10f-f61a1e556bf0",
+      "name": "Filtrar Campos Relevantes PARA VECTORIZAR",
+      "notes": " Selecciona solo los campos importantes de cada noticia (titular, fecha, apoyo, superSoporte"
+    },
+    {
+      "parameters": {
+        "jsCode": "const outputItems = []; // This array will hold the chunks we want to output\nconst chunkSize = 100;\n\n// Step 1: Collect all the 'json' data objects from the incoming n8n items\n// The 'items' variable holds an array of n8n's internal item objects.\n// We want to extract the 'json' property from each of them.\nconst allRawRecords = items.map(item => item.json);\n\nif (!Array.isArray(allRawRecords)) {\n    // This case should be rare if the previous node is structured correctly,\n    // but it's good for robustness.\n    return [{ json: { error: \"Input data is not an array of raw records.\", receivedData: allRawRecords } }];\n}\n\nconsole.log(`Total records to chunk: ${allRawRecords.length}`);\n\n// Step 2: Iterate through the collected raw records and create chunks\nfor (let i = 0; i < allRawRecords.length; i += chunkSize) {\n    const chunk = allRawRecords.slice(i, i + chunkSize);\n    const chunkNumber = Math.floor(i / chunkSize) + 1;\n\n    console.log(`Prepared chunk ${chunkNumber} with ${chunk.length} records.`);\n    \n    // Each object pushed to outputItems will become a separate n8n item.\n    // Here, each item will contain a 'chunk' property holding the array of records for that block.\n    outputItems.push({ json: { chunk: chunk } }); \n\n    // Optional: Add a small delay if sending these chunks to an external service\n    // right after this node might hit rate limits.\n    // await new Promise(resolve => setTimeout(resolve, 500)); \n}\n\n// Step 3: Return the array of n8n items, where each item contains a chunk.\nreturn outputItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        320
+      ],
+      "id": "09bebcad-ff5b-400a-9f81-ac55a18941a8",
+      "name": "Dividir en Lotes de 100 Registros (Evitamos sobrecargar Ollama)",
+      "notes": "Organiza los datos en grupos de 100 registros para procesamiento por lotes"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1080,
+        640
+      ],
+      "id": "a6074723-006b-41df-8df5-0c7dceeb2217",
+      "name": "Procesar Lotes Iterativamente (De a 1 lote)",
+      "notes": " Itera sobre cada lote de registros para su procesamiento posterior"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-r1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        840
+      ],
+      "id": "2b9f7d15-fa41-465f-800a-ce124e84a179",
+      "name": "Modelo de IA (Deepseek-R1)",
+      "credentials": {
+        "openRouterApi": {
+          "id": "DwbxAhIICmq2DxSZ",
+          "name": "OpenRouter account 3"
+        }
+      },
+      "notes": "Nodo que conecta con el modelo de lenguaje Deepseek-R1 a través de OpenRouter. Procesa las solicitudes de análisis de noticias y genera respuestas estructuradas en JSON"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un asistente especializado en analizar noticias y transcripciones de radio y TV (campo ROLLO) para el presidente del Cabildo de Gran Canaria. \n\nTu misión es procesar los datos de las siguientes noticias VECTORIZADAS:{{ $json.resumenCompleto }} con la finalidad de detectar si alguna noticia o transcripción representa un riesgo, problema o asunto político relevante que requiera atención del presidente del Cabildo de Gran Canarias. \n\nDebes identificar indicios claros de conflictos, movilizaciones sociales, cambios normativos, problemas ambientales, crisis mediáticas, o cualquier situación que pueda afectar la estabilidad, reputación o el bienestar de Gran Canaria politicamente, con especial énfasis en el impacto para el presidente.\n\nEl análisis debe basarse en el sistema de scoring de criticidad descrito (Puntuación = Relevancia_Medio × Factor_Temporal × Impacto_Cliente × Contexto_Noticia), donde los multiplicadores por medio son:\n- Televisión: ×3.0\n- Radio: ×1.5\n- Prensa: ×2.0\n- Digital: ×1.2\n- Redes Sociales: ×1.0\n\nIncluye análisis de sentimiento y detección de palabras clave específicas asociadas al presidente del Cabildo o al Cabildo de Gran Canaria. El resultado debe ser breve, preciso y enfocado en destacar noticias o transcripciones de alta criticidad.\n\nGenera un objeto JSON con esta estructura EXACTA para enviar por correo:\n\n{\n  \"alerta\": boolean,            // true si hay noticias o transcripciones preocupantes, false si no\n  \"resumen\": \"string breve\",    // resumen en pocas palabras del estado general\n  \"noticiasRelevantes\": [       // array de titulares o fragmentos clave de transcripciones más importantes\n    \"titular o fragmento 1\",\n    \"titular o fragmento 2\"\n  ]\n}\n\nNO incluyas recomendaciones ni sugerencias de acciones, ya que el presidente no desea recibir indicaciones sobre cómo proceder.\n\nResponde SOLO con el objeto JSON, sin texto adicional.\n\n---\n\n**Ejemplo rápido**:\nSi no hay contenido preocupante:\n\n{\n  \"alerta\": false,\n  \"resumen\": \"Situación estable sin novedades críticas para el presidente.\",\n  \"noticiasRelevantes\": []\n}\n\nSi hay contenido preocupante:\n\n{\n  \"alerta\": true,\n  \"resumen\": \"Noticias críticas detectadas con impacto potencial para el presidente.\",\n  \"noticiasRelevantes\": [\n    \"Protestas en Las Palmas por nueva normativa ambiental\",\n    \"Transcripción de radio: 'El presidente del Cabildo enfrenta críticas por gestión de residuos'\"\n  ]\n}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -280,
+        780
+      ],
+      "id": "cb3488c1-b129-4450-ad9f-d5c43464e660",
+      "name": "Analizador Principal de Riesgos Políticos",
+      "notes": "Evalúa el resumen consolidado de noticias para detectar riesgos críticos. Genera alertas JSON con: estado general (alerta true/false), resumen ejecutivo y listado de noticias relevantes filtradas por impacto político"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://2a08-2800-af0-142c-1ac-c546-b4a5-1c93-e56c.ngrok-free.app/api/embeddings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "all-minilm"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $json.titular + \" Fecha: \" + $json.fecha + \" Apoyo: \" + $json.apoyo + \" Super Soporte: \" + $json.superSoporte }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -800,
+        660
+      ],
+      "id": "8d768369-107b-46f4-b7a5-496c18f5fcfc",
+      "name": "Convertir a Embeddings (Vectorización)",
+      "retryOnFail": false,
+      "notes": "Envía titulares y metadatos a un servicio externo para convertirlos en vectores numéricos (embeddings). Usa el modelo 'all-minilm' para representación semántica, permitiendo análisis por IA"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Paso 1: Extraer y limpiar el contenido del campo \"output\"\nconst rawOutput = $json.output || \"\";\nconst cleanedJsonText = rawOutput.replace(/```json|```/g, \"\").trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleanedJsonText);\n} catch (error) {\n  throw new Error(\"No se pudo parsear el JSON del campo output.\");\n}\n\n// Paso 2: Extraer los campos del JSON (sin recomendaciones)\nconst { alerta, resumen, noticiasRelevantes } = parsed;\n\n// Paso 3: Crear el sujeto dinámico\nconst sujeto = alerta\n  ? \"🚨 ¡Alerta! Riesgos detectados para el Cabildo de Gran Canaria\"\n  : \"✅ Informe sin alertas – Todo bajo control\";\n\n// Paso 4: Construir el HTML para el cuerpo del correo\nconst mensaje = `\n  <div style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;\">\n    <div style=\"\n      max-width: 600px;\n      width: 100%;\n      margin: auto;\n      background-color: white;\n      border-radius: 12px;\n      padding: 24px;\n      box-shadow: 0 4px 12px rgba(0,0,0,0.1);\n      box-sizing: border-box;\n    \">\n      \n      <h2 style=\"color: #0a3d62; font-size: 24px; margin-bottom: 10px;\">🔔 Informe de Alerta – Cabildo de Gran Canaria</h2>\n\n      <p style=\"font-size: 16px; color: ${alerta ? '#e84118' : '#2ecc71'}; font-weight: bold;\">\n        ${alerta ? '⚠️ Se han detectado focos de atención en titulares recientes.' : '✅ No se detectaron alertas importantes.'}\n      </p>\n\n      <h3 style=\"color: #273c75; font-size: 18px; margin-top: 20px;\">📌 Resumen Ejecutivo</h3>\n      <p style=\"font-size: 15px; color: #333; line-height: 1.6;\">${resumen}</p>\n\n      <h3 style=\"color: #192a56; font-size: 18px; margin-top: 20px;\">📰 Noticias Relevantes</h3>\n      <ul style=\"font-size: 14px; padding-left: 20px; color: #444; line-height: 1.5;\">\n        ${noticiasRelevantes.map(noticia => `<li>🟠 ${noticia}</li>`).join('')}\n      </ul>\n\n      <hr style=\"margin: 30px 0; border: none; border-top: 1px solid #ddd;\">\n      <p style=\"font-size: 12px; color: #aaa; text-align: center;\">Informe automatizado – n8n + IA | Cabildo de Gran Canaria</p>\n    </div>\n  </div>\n`;\n\n// Paso 5: Retornar sujeto y mensaje como campos separados\nreturn [\n  {\n    json: {\n      sujeto,\n      mensaje\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        120,
+        780
+      ],
+      "id": "357eca5b-e4ac-43e1-a88b-932e1a17a56e",
+      "name": "Formatear Correo de Alerta",
+      "notes": "Transforma el JSON de alertas en HTML listo para correo. Incluye:\n\nAsunto dinámico (✅/🚨)\n\nPlantilla responsive con estilos\n\nListado de noticias críticas\n\nElimina código superfluo del output de IA"
+    },
+    {
+      "parameters": {
+        "sendTo": "pedrorubenquintana1998@gmail.com",
+        "subject": "={{ $json.sujeto }}",
+        "message": "={{ $json.mensaje }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        320,
+        780
+      ],
+      "id": "12049abc-79fc-4bb6-85b2-9c7661b81acc",
+      "name": "Enviar Correo Electrónico (Alerta Ejecutiva)",
+      "webhookId": "f4d0ce9a-a880-4525-b8e3-33dafc8150be",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "9PnIvwdvMgNMnWaS",
+          "name": "Gmail account 8"
+        }
+      },
+      "notes": "Envía el informe de alertas al presidente del Cabildo. Configuración:\n\nDestinatario fijo\n\nHTML formateado\n\nSin atribución de n8n\n\nUsa autenticación OAuth2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un asistente especializado en analizar noticias y transcripciones de radio y TV (campo ROLLO) para el presidente del Cabildo de Gran Canaria.\n\nRecibirás parte de un contexto vectorizado como BLOQUE, correspondiente a fragmentos informativos que podrían incluir noticias o transcripciones de diferentes medios.\n\nTu tarea es:\n\n1. Analizar este fragmento teniendo en cuenta los resúmenes anteriores (si existen).\n2. Detectar si contiene indicios de conflictos políticos, problemas sociales, movilizaciones, crisis o menciones relevantes al Cabildo o a su presidente.\n3. Extraer solo la información crítica más significativa del bloque.\n4. Generar un resumen estructurado que luego será integrado a un informe mayor.\n\nTen en cuenta este sistema de puntuación (Puntuación = Relevancia\\_Medio × Factor\\_Temporal × Impacto\\_Cliente × Contexto\\_Noticia), donde los multiplicadores por medio son:\n\n* Televisión: ×3.0\n* Radio: ×1.5\n* Prensa: ×2.0\n* Digital: ×1.2\n* Redes Sociales: ×1.0\n\nSi recibes un resumen anterior, intégralo como contexto y evitalo en repeticiones. Si no, trabaja solo con el bloque actual.\n\n---\n\n### Entrada:\n\n**Resumen anterior:**\n{{ $json.resumenAnterior || 'Ninguno aún' }}\n\n**Bloque vectorizado (fragmento):**\n{{ $json.embedding }}\n\n---\n\n### Salida esperada (solo JSON):\n\n```json\n{\n  \"bloqueId\": {{ $json.bloqueId || 0 }},\n  \"resumen\": \"breve resumen de este bloque, enfocado en riesgos o asuntos críticos detectados (máx. 20 líneas)\",\n  \"noticias\": [\n    \"fragmento clave o titular 1 (si aplica)\",\n    \"fragmento clave o titular 2 (si aplica)\"\n  ]\n}\n```\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -400,
+        560
+      ],
+      "id": "5bde7336-4340-4df9-b10b-d019e28322cd",
+      "name": "Analizador de Bloques (Procesamiento Inicial)",
+      "notes": "Analiza fragmentos vectorizados individualmente. Detecta:\n\nConflictos políticos\n\nMenciones al Cabildo/presidente\n\nProblemas sociales\nDevuelve JSON con resumen por bloque y fragmentos clave."
+    },
+    {
+      "parameters": {
+        "jsCode": "let resumenes = [];\nlet noticiasTotales = [];\n\n// Iterar por todos los items generados por el Agente IA\nfor (const item of items) {\n  try {\n    // Eliminar backticks y etiquetas de markdown\n    const limpio = item.json.output.replace(/```json|```/g, \"\").trim();\n    const data = JSON.parse(limpio);\n\n    resumenes.push({\n      id: data.bloqueId,\n      texto: data.resumen\n    });\n\n    noticiasTotales = noticiasTotales.concat(data.noticias || []);\n  } catch (e) {\n    throw new Error(`Error al procesar un bloque: ${e.message}`);\n  }\n}\n\n// Ordenar por bloqueId\nresumenes.sort((a, b) => a.id - b.id);\n\n// Concatenar los resúmenes en un solo texto\nconst resumenCompleto = resumenes.map(r => `Bloque ${r.id}: ${r.texto}`).join('\\n\\n');\n\nreturn [\n  {\n    json: {\n      resumenCompleto,\n      noticiasRelevantes: noticiasTotales\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -100,
+        560
+      ],
+      "id": "9a5542ee-c445-4b25-89da-526565cdd7e8",
+      "name": "Consolidar Resúmenes Parciales",
+      "notes": "Agrega y ordena los análisis de bloques individuales:\n\nCombina todos los resúmenes en un texto unificado\n\nFiltra noticias repetidas\n\nOrdena por ID de bloque\n\nPrepara datos para el analizador principal"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        -600,
+        560
+      ],
+      "id": "64baf360-62d6-4df7-9848-ea29c3ff4ee9",
+      "name": "Unir Datos para Procesamiento",
+      "notes": "Combina embeddings vectorizados con metadatos adicionales necesarios para el análisis por bloques (IDs, contexto previo, etc.)."
+    },
+    {
+      "parameters": {
+        "content": "# 🚀 WORKFLOW COMPLETO: SISTEMA DE MONITOREO POLÍTICO CON IA (RECURSOS GRATUITOS)\n\n## 🌐 **ARQUITECTURA GLOBAL**  \n**Recursos Utilizados**:  \n✔ **Ollama Local** (con modelo Deepseek-R1)  \n✔ **Ngrok Free** (para exponer el modelo local)  \n✔ **Node.js Script** (puente 8080 → Puerto Ollama)  \n✔ **OpenRouter** (plan free para fallback)  \n✔ **n8n** (orquestador workflow)  \n\n---\n\n## ⚠️ **DESAFÍOS TÉCNICOS**  \n**Limitaciones Clave**:  \n✖ **Ngrok Free**:  \n   - URL dinámica que caduca cada sesión  \n   - Requiere actualización manual en nodos HTTP  \n   - Ancho de banda limitado (40MB/hora)  \n\n✖ **Límites de Contexto en IA**:  \n   - **Agente 1** (Analizador de Bloques):  \n     - Máx. 512 tokens por fragmento  \n     - Procesa en lotes de 100 registros  \n   - **Agente 2** (Consolidador):  \n     - Restricción de 2048 tokens para análisis final  \n     - Elimina redundancias antes de procesar  \n\n✖ **Recursos Locales**:  \n   - Ollama consume 6GB RAM con modelo Deepseek-R1  \n   - Latencia variable en hardware modesto  \n\n**Soluciones Implementadas**:  \n🔧 **Script de Monitoreo** (Node.js):  \n   - Verifica conexión Ngrok cada 5min  \n   - Registra cambios de URL en log  \n\n🔧 **Estrategia de Cascada**:  \n   ```mermaid\n   graph LR\n   A[Fragmentos Pequeños] --> B[Agente 1]\n   B --> C[Resúmenes Parciales]\n   C --> D[Agente 2]\n   D --> E[Análisis Unificado]",
+        "height": 880,
+        "width": 2200,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1660,
+        120
+      ],
+      "typeVersion": 1,
+      "id": "7af2e2b8-8037-4a3b-a613-d8dac0f7ffd7",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## ⚫  DIVIDIR NOTICIAS",
+        "height": 240,
+        "width": 360,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        20,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "3dd492a9-3dd4-4167-b3f3-d8403d6b85bd",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Obtener Token de Autenticación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Token de Autenticación": {
+      "main": [
+        [
+          {
+            "node": "Configurar Parámetros y Generar URL de Consulta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configurar Parámetros y Generar URL de Consulta": {
+      "main": [
+        [
+          {
+            "node": "Consultar API con Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar API con Token": {
+      "main": [
+        [
+          {
+            "node": "Extraer Listado de Noticias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer Listado de Noticias": {
+      "main": [
+        [
+          {
+            "node": "Filtrar Campos Relevantes PARA VECTORIZAR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar Campos Relevantes PARA VECTORIZAR": {
+      "main": [
+        [
+          {
+            "node": "Dividir en Lotes de 100 Registros (Evitamos sobrecargar Ollama)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dividir en Lotes de 100 Registros (Evitamos sobrecargar Ollama)": {
+      "main": [
+        [
+          {
+            "node": "Procesar Lotes Iterativamente (De a 1 lote)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Procesar Lotes Iterativamente (De a 1 lote)": {
+      "main": [
+        [
+          {
+            "node": "Unir Datos para Procesamiento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Convertir a Embeddings (Vectorización)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modelo de IA (Deepseek-R1)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analizador Principal de Riesgos Políticos",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Analizador de Bloques (Procesamiento Inicial)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analizador Principal de Riesgos Políticos": {
+      "main": [
+        [
+          {
+            "node": "Formatear Correo de Alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convertir a Embeddings (Vectorización)": {
+      "main": [
+        [
+          {
+            "node": "Procesar Lotes Iterativamente (De a 1 lote)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Unir Datos para Procesamiento",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        []
+      ]
+    },
+    "Formatear Correo de Alerta": {
+      "main": [
+        [
+          {
+            "node": "Enviar Correo Electrónico (Alerta Ejecutiva)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar Correo Electrónico (Alerta Ejecutiva)": {
+      "main": [
+        []
+      ]
+    },
+    "Analizador de Bloques (Procesamiento Inicial)": {
+      "main": [
+        [
+          {
+            "node": "Consolidar Resúmenes Parciales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidar Resúmenes Parciales": {
+      "main": [
+        [
+          {
+            "node": "Analizador Principal de Riesgos Políticos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unir Datos para Procesamiento": {
+      "main": [
+        [
+          {
+            "node": "Analizador de Bloques (Procesamiento Inicial)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "538b6b98-98b9-42a3-adb9-f317c3ec464b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c82b6d82c5e68698f04eb90aff26f6d518213142c432a723c8b2a1070d31f483"
+  },
+  "id": "m44DbnDPKMvEDd5z",
+  "tags": []
+}

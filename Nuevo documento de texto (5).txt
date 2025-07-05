@@ -1,0 +1,9 @@
+Todo código, configuración o cambios que generes deben cumplir con los requisitos de despliegue en Netlify para evitar errores de compilación. Esto incluye:
+
+Estructura y builds válidos (ej.: netlify.toml, scripts en package.json).
+
+Compatibilidad con Node.js, dependencias y estándares soportados por Netlify.
+
+Optimización de rutas, assets y variables de entorno.
+
+Antes de aplicar cambios, pregunta: '¿Optimizar esto para Netlify?' y espera confirmación
