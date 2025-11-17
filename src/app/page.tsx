@@ -1,3 +1,17 @@
+/**
+ * Página Principal del Portfolio
+ *
+ * Esta es la página de inicio del portfolio personal de Pedro Quintana.
+ * Incluye:
+ * - Hero section con visualización 3D de la Tierra
+ * - Sección "Sobre mí" con descripción profesional
+ * - Stack tecnológico con animación orbital
+ * - Proyectos destacados con información detallada
+ * - Enlaces de contacto y redes sociales
+ *
+ * @component
+ */
+
 'use client';
 
 import { motion } from 'framer-motion';
@@ -18,6 +32,10 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import dynamic from 'next/dynamic';
 
+/**
+ * Componente OrbitalStack con lazy loading
+ * Desactiva SSR para evitar problemas con animaciones Three.js
+ */
 const OrbitalStack = dynamic(() => import('@/components/OrbitalStack'), {
   ssr: false,
   loading: () => (
@@ -27,6 +45,10 @@ const OrbitalStack = dynamic(() => import('@/components/OrbitalStack'), {
   ),
 });
 
+/**
+ * Componente Earth con lazy loading
+ * El planeta 3D solo se carga en el cliente para optimizar rendimiento
+ */
 const EarthCanvas = dynamic(() => import('@/components/Earth'), {
   ssr: false,
   loading: () => (
@@ -38,12 +60,16 @@ const EarthCanvas = dynamic(() => import('@/components/Earth'), {
 
 export default function Home() {
   const [showCanvas, setShowCanvas] = useState(false);
-  
-  useEffect(() => { 
+
+  /**
+   * Efecto para retrasar la carga del canvas 3D
+   * Mejora el rendimiento inicial de la página
+   */
+  useEffect(() => {
     const timer = setTimeout(() => {
       setShowCanvas(true);
     }, 100);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
