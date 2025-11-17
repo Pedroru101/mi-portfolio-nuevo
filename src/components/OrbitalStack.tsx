@@ -1,3 +1,18 @@
+/**
+ * Componente OrbitalStack - Animación Orbital del Stack Tecnológico
+ *
+ * Este componente muestra las tecnologías principales del portfolio
+ * en una animación orbital similar a un sistema solar.
+ *
+ * Características:
+ * - Animación continua e infinita usando Framer Motion
+ * - Responsive: ajusta el radio orbital según el tamaño de pantalla
+ * - Cada tecnología orbita a velocidad constante
+ * - Efectos hover interactivos
+ *
+ * @component
+ */
+
 'use client';
 
 /* eslint-disable react-hooks/rules-of-hooks */
@@ -5,6 +20,10 @@
 import { motion, useTime, useTransform } from 'framer-motion';
 import Image from 'next/image';
 
+/**
+ * Array de tecnologías que se mostrarán orbitando
+ * Cada skill incluye la ruta de la imagen y el nombre a mostrar
+ */
 const skills = [
   { imgSrc: '/icons/n8n.png', name: 'n8n' },
   { imgSrc: '/icons/powerbi.svg', name: 'Power BI' },
@@ -15,36 +34,46 @@ const skills = [
   { imgSrc: '/icons/javascript.png', name: 'JavaScript' },
 ];
 
+/**
+ * Componente principal que renderiza la animación orbital
+ * @returns {JSX.Element} Sección con animación orbital de tecnologías
+ */
 export default function OrbitalStack() {
+  // Hook de Framer Motion para obtener el tiempo transcurrido
   const time = useTime();
 
   return (
     <section className="py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
       <div className="relative w-[300px] h-[300px] sm:w-[400px] sm:h-[400px]">
-        {/* Tarjeta Central (Sol) */}
+        {/* Tarjeta Central - Representa el "Sol" del sistema */}
         <motion.div
           whileHover={{ backgroundColor: 'rgba(6,182,212,0.3)' }}
           className="absolute top-1/2 left-1/2 bg-white/10 backdrop-blur-sm border border-white/10 rounded-3xl w-28 h-16 sm:w-40 sm:h-20 flex items-center justify-center text-center cursor-default select-none z-10"
           style={{
-            // AJUSTE MANUAL DE POSICIÓN DEL SOL:
-            // El primer valor (-50% es el centro) controla el eje X (izquierda/derecha).
-            // El segundo valor (-50% es el centro) controla el eje Y (arriba/abajo).
+            // Posición ajustada para centrar el título
             transform: 'translate(-58%, -70%)',
           }}
         >
           <h3 className="text-base sm:text-lg md:text-xl font-bold text-white font-orbitron">Mi Stack Tecnológico</h3>
         </motion.div>
 
-        {/* Mapeo de las tarjetas (planetas) con animación independiente */}
+        {/* Mapeo de tecnologías - Cada una orbita como un "planeta" */}
         {skills.map((skill, index) => {
+          // Calcula el ángulo inicial único para cada tecnología
           const angleOffset = (360 / skills.length) * index;
+
+          // Transforma el tiempo en rotación continua
           const rotate = useTransform(
             time,
-            [0, 120000], // 120 segundos para una rotación completa
+            [0, 120000], // 120 segundos (2 minutos) para una rotación completa
             [angleOffset, angleOffset + 360],
             { clamp: false }
           );
+
+          // Radio orbital responsive
           const radius = typeof window !== 'undefined' && window.innerWidth < 640 ? 138 : 172;
+
+          // Calcula las coordenadas X e Y usando trigonometría
           const x = useTransform(rotate, (r) => `${radius * Math.cos(r * Math.PI / 180)}px`);
           const y = useTransform(rotate, (r) => `${radius * Math.sin(r * Math.PI / 180)}px`);
 
